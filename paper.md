@@ -51,23 +51,25 @@ For each image we collapse the 19 CelebAMask-HQ [11] class masks into three tens
 
 Write $p$ for the student disparity and $d^{*}$ for the teacher disparity. We first align $p$ to $d^{*}$ by a per-sample least-squares scale and shift computed over the foreground alone, so the full dynamic range serves facial relief rather than the background:
 
-$$ (s, t) = \arg\min_{s,t} \sum_i M_i\,(s\,p_i + t - d^{*}_i)^2, \qquad \hat p = s\,p + t. $$
+$$ (s, t) = \arg\min_{s,t} \sum_i M_i (s p_i + t - d^{*}_i)^2, \qquad \hat{p} = s p + t $$
 
 The foreground scale-invariant term is a 20%-trimmed mean absolute error over foreground pixels, following the trimmed robust loss of MiDaS [2]:
 
-$$ \mathcal{L}_{\mathrm{ssi}} = \operatorname{trim}_{0.2}\{\, M_i\,|\hat p_i - d^{*}_i| \,\}. $$
+$$ \mathcal{L}_{\mathrm{ssi}} = \mathrm{trim}_{0.2} \big( M_i | \hat{p}_i - d^{*}_i | \big) $$
+
+where $\mathrm{trim}_{0.2}$ averages the foreground residuals after discarding the largest 20%.
 
 The gradient term is where sharpness comes from. We match multi-scale gradients on the residual $E = \hat p - d^{*}$ and weight each pixel by $w$, combining the residual formulation of Face Anything [10] with the multi-scale gradient matching of MiDaS [2]:
 
-$$ \mathcal{L}_{\mathrm{grad}} = \frac{1}{S}\sum_{s=1}^{S}\Big( \frac{\sum w^{(s)}|\nabla_x E^{(s)}|}{\sum w^{(s)}} + \frac{\sum w^{(s)}|\nabla_y E^{(s)}|}{\sum w^{(s)}} \Big),\quad S=4. $$
+$$ \mathcal{L}_{\mathrm{grad}} = \frac{1}{S}\sum_{s=1}^{S} \left( \frac{\sum w^{(s)} |\nabla_x E^{(s)}|}{\sum w^{(s)}} + \frac{\sum w^{(s)} |\nabla_y E^{(s)}|}{\sum w^{(s)}} \right), \quad S = 4 $$
 
 A confidence head predicts a positive per-pixel weight $W$ from the DPT penultimate features. Following Kendall and Gal [9] and Face Anything [10], the confidence term lets the student discount pixels the teacher labels unreliably:
 
-$$ \mathcal{L}_{\mathrm{conf}} = \frac{\sum M\,(|\hat p - d^{*}|\,W - \alpha \log W)}{\sum M},\qquad \alpha = 0.2. $$
+$$ \mathcal{L}_{\mathrm{conf}} = \frac{\sum M \left( | \hat{p} - d^{*} | W - \alpha \log W \right)}{\sum M}, \qquad \alpha = 0.2 $$
 
 The boundary term concentrates a residual-gradient penalty at parsed feature edges $B$, pushing crisp depth steps to the lid line, lip, nostril, and hairline:
 
-$$ \mathcal{L}_{\mathrm{bnd}} = \frac{\sum B\,|\nabla_x E|}{\sum B} + \frac{\sum B\,|\nabla_y E|}{\sum B}. $$
+$$ \mathcal{L}_{\mathrm{bnd}} = \frac{\sum B |\nabla_x E|}{\sum B} + \frac{\sum B |\nabla_y E|}{\sum B} $$
 
 The full objective is $\mathcal{L} = \mathcal{L}_{\mathrm{ssi}} + \lambda_g \mathcal{L}_{\mathrm{grad}} + \lambda_c \mathcal{L}_{\mathrm{conf}} + \lambda_b \mathcal{L}_{\mathrm{bnd}}$ with $\lambda_g = 1.0$, $\lambda_c = 0.2$, $\lambda_b = 0.5$.
 
