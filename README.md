@@ -112,7 +112,7 @@ The teacher sets the ceiling. No student grows sharper than the labels it learns
 
 ![validation error falling from 0.0276 to 0.0091](figures/training_curve.png)
 
-Error drops steeply early, then grinds down for another 14,000 steps as the model refines fine structure. A machine crash partway through cost nothing: the run resumed from its last checkpoint and continued below the pre-crash best. Everything ran on one Apple-silicon laptop. No cluster, no cloud GPU.
+Error drops steeply early, then grinds down for another 14,000 steps as the model refines fine structure. A instance crash partway (my fault) through cost nothing: the run resumed from its last checkpoint and continued below the pre-crash best. 
 
 ## An evaluation result worth reading
 
