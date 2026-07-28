@@ -8,7 +8,7 @@ Model weights: [huggingface.co/a-ml/FaceDepth](https://huggingface.co/a-ml/FaceD
 
 ## Abstract
 
-We train a monocular depth model that resolves the fine relief of a human face, the eyelid crease, the nostril rim, the lip contour, the hairline, from a single photo and no depth sensor. General depth models learn from scenes and rooms, so they flatten faces into a smooth blob and discard the structure a face application depends on. FaceDepth distills a boundary-accurate high-resolution teacher, Depth Pro [6], into a DINOv2/DPT student, Depth Anything V2-Large [5], and supervises it with three losses derived from CelebAMask-HQ face parsing [11]: a foreground-restricted scale-and-shift-invariant term, a feature-weighted gradient term on the depth residual, and a boundary term that ties depth discontinuities to true feature edges. On 500 held-out CelebA-HQ faces the student cuts face-region scale-invariant error by 67% against its pretrained initialization, from 0.02764 to 0.00906. At matched edge density it reproduces the teacher's depth-edge structure with an F1 of 0.882 against the pretrained model's 0.717, a 23% gain, and both recall and precision rise. Teacher labeling, mask processing, and multi-resolution training to 910 pixels all run unattended on one Apple-silicon laptop, and the exported Core ML model runs at 40 fps on the same machine.
+We train a monocular depth model that resolves the fine relief of a human face, the eyelid crease, the nostril rim, the lip contour, the hairline, from a single photo and no depth sensor. General depth models learn from scenes and rooms, so they flatten faces into a smooth blob and discard the structure a face application depends on. FaceDepth distills a boundary-accurate high-resolution teacher, Depth Pro [6], into a DINOv2/DPT student, Depth Anything V2-Large [5], and supervises it with three losses derived from CelebAMask-HQ face parsing [11]: a foreground-restricted scale-and-shift-invariant term, a feature-weighted gradient term on the depth residual, and a boundary term that ties depth discontinuities to true feature edges. On 500 held-out CelebA-HQ faces the student cuts face-region scale-invariant error by 67% against its pretrained initialization, from 0.02764 to 0.00906. At matched edge density it reproduces the teacher's depth-edge structure with an F1 of 0.882 against the pretrained model's 0.717, a 23% gain, and both recall and precision rise. Teacher labeling, mask processing, and multi-resolution training to 910 pixels, and the exported Core ML model runs at 40 fps on the same machine.
 
 ---
 
@@ -25,7 +25,7 @@ We attack both. For supervision we replace the usual general teacher with Depth 
 - A distillation recipe for sharp face depth. Swapping a general depth teacher for a boundary-accurate one is the dominant lever, and a DINOv2/DPT student distilled from it inherits per-feature relief.
 - Three segmentation-guided depth losses: foreground-restricted scale alignment, a feature-weighted residual gradient term, and a parsed-boundary term. Each targets a distinct failure of scene-trained face depth.
 - An evaluation correction. Scoring depth edges against all parsed feature edges at a fixed threshold ranks the sharpest model last. We show why, and give a density-matched protocol that agrees with both the error curve and the qualitative results.
-- A single-machine pipeline. It labels 30,000 faces, processes their masks, and trains a ViT-Large student at 910-pixel input on one laptop, with a plateau-based stop and a health watchdog that saves and halts before a degrading machine can crash the run.
+- A single-machine pipeline. It labels 30,000 faces, processes their masks, and trains a ViT-Large student at 910-pixel input, with a plateau-based stop and a health watchdog that saves and halts before a degrading machine can crash the run.
 
 ## 2. Related Work
 
@@ -41,7 +41,7 @@ We attack both. For supervision we replace the usual general teacher with Depth 
 
 ### 3.1 Teacher labeling
 
-Depth Pro [6] predicts metric depth for each face at native 1024-pixel resolution in about two seconds on the target laptop. We store inverse depth, $d^{*} = 1/z$, which matches the student's output convention and the scale-and-shift-invariant loss space of MiDaS [2]. We run the teacher at native resolution without patch merging [7]. Depth Pro already resolves per-strand structure at native scale, and patch merging would multiply an 18-hour offline pass for a gain we did not need. Section 6 revisits this.
+Depth Pro [6] predicts metric depth for each face at native 1024-pixel resolution in about two seconds on the target. We store inverse depth, $d^{*} = 1/z$, which matches the student's output convention and the scale-and-shift-invariant loss space of MiDaS [2]. We run the teacher at native resolution without patch merging [7]. Depth Pro already resolves per-strand structure at native scale, and patch merging would multiply an 18-hour offline pass for a gain we did not need. Section 6 revisits this.
 
 ### 3.2 Mask-aware corpus
 
