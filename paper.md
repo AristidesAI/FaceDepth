@@ -25,7 +25,7 @@ We attack both. For supervision we replace the usual general teacher with Depth 
 - A distillation recipe for sharp face depth. Swapping a general depth teacher for a boundary-accurate one is the dominant lever, and a DINOv2/DPT student distilled from it inherits per-feature relief.
 - Three segmentation-guided depth losses: foreground-restricted scale alignment, a feature-weighted residual gradient term, and a parsed-boundary term. Each targets a distinct failure of scene-trained face depth.
 - An evaluation correction. Scoring depth edges against all parsed feature edges at a fixed threshold ranks the sharpest model last. We show why, and give a density-matched protocol that agrees with both the error curve and the qualitative results.
-- A single-machine pipeline. It labels 30,000 faces, processes their masks, and trains a ViT-Large student at 910-pixel input, with a plateau-based stop and a health watchdog that saves and halts before a degrading machine can crash the run.
+
 
 ## 2. Related Work
 
